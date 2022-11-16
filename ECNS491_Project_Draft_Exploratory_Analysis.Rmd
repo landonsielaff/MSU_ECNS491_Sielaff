@@ -526,7 +526,7 @@ plot(x6ormore_graphics["X6orMorePoints_2021"])
 (best_x6ormore_harvests_2018 = head(x6ormore_graphics %>% select(DISTRICT, X6orMorePoints_2018) %>% arrange(desc(X6orMorePoints_2018))))
 (best_x6ormore_harvests_2019 = head(x6ormore_graphics %>% select(DISTRICT, X6orMorePoints_2019) %>% arrange(desc(X6orMorePoints_2019))))
 (best_x6ormore_harvests_2020 = head(x6ormore_graphics %>% select(DISTRICT, X6orMorePoints_2020) %>% arrange(desc(X6orMorePoints_2020))))
-(best_x6ormore_harvests_2021 = head(x6ormore_graphics %>% select(DISTRICT, X6orMorePoints_2021) %>% arrange(desc(X6orMorePoints_2021))))
+#(best_x6ormore_harvests_2021 = head(x6ormore_graphics %>% select(DISTRICT, X6orMorePoints_2021) %>% arrange(desc(X6orMorePoints_2021))))
 ```
 
 
