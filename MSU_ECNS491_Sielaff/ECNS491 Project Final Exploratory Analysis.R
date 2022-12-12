@@ -1,0 +1,480 @@
+#title: "ECNS 491 Project: Final Exploratory Analysis"
+#author: "Landon Sielaff"
+#date: "12/11/2022"
+
+# Adding in the correct packages to conduct analysis
+rm(list=ls())
+library(tmap)
+library(tidyverse)
+library(sf)
+library(gtools)
+library(dplyr)
+
+#Setting working directory to the correct 
+setwd("/Users/landonsielaff/Downloads/ECNS 491/gitRepoFinal_Done/MSU_ECNS491_Sielaff/data/Deer_and_Elk_Hunting_Districts_(2022_and_2023_Seasons)")
+Deer_and_Elk_Hunting_Districts = st_read("Deer_and_Elk_Hunting_Districts_(2022_and_2023_Seasons).shp")
+
+setwd("/Users/landonsielaff/Downloads/ECNS 491/gitRepoFinal_Done/MSU_ECNS491_Sielaff/data")
+harvest =read.csv("fwpHarvestEstimatesReport_Elk.csv")
+
+
+# Wrangle and Cleaning
+
+##### Separating Each Years Data Into It's Own Data Frame
+for(i in unique(harvest$License.Year)){
+  for(j in c("R", "N", "SUM")){
+    assign(paste0("harvest_", i,"_", j), harvest |> filter(License.Year == i) |> filter(Residency == j))
+  }
+}
+
+##### Creating a Data Frame that Contains the Index of Each Hunting District for Each Year, Separated by Residents, Non-Residents and Sum
+hd = na.omit(sort(Deer_and_Elk_Hunting_Districts$DISTRICT, decreasing = F))
+
+harvest_index = data.frame(hd)
+colnames(harvest_index) = c("hunting district")
+
+index_match = function(u)
+{
+  temp = rep(0,length(hd))
+  for (i in 1:length(temp)){
+    temp[i] =  match(hd[i], u)
+  }
+  return(temp)
+}
+
+harvest_index$index_2004_R = index_match(harvest_2004_R$Hunting.District)
+harvest_index$index_2005_R = index_match(harvest_2005_R$Hunting.District)
+harvest_index$index_2006_R = index_match(harvest_2006_R$Hunting.District)
+harvest_index$index_2007_R = index_match(harvest_2007_R$Hunting.District)
+harvest_index$index_2008_R = index_match(harvest_2008_R$Hunting.District)
+harvest_index$index_2009_R = index_match(harvest_2009_R$Hunting.District)
+harvest_index$index_2010_R = index_match(harvest_2010_R$Hunting.District)
+harvest_index$index_2011_R = index_match(harvest_2011_R$Hunting.District)
+harvest_index$index_2012_R = index_match(harvest_2012_R$Hunting.District)
+harvest_index$index_2013_R = index_match(harvest_2013_R$Hunting.District)
+harvest_index$index_2014_R = index_match(harvest_2014_R$Hunting.District)
+harvest_index$index_2015_R = index_match(harvest_2015_R$Hunting.District)
+harvest_index$index_2016_R = index_match(harvest_2016_R$Hunting.District)
+harvest_index$index_2017_R = index_match(harvest_2017_R$Hunting.District)
+harvest_index$index_2018_R = index_match(harvest_2018_R$Hunting.District)
+harvest_index$index_2019_R = index_match(harvest_2019_R$Hunting.District)
+harvest_index$index_2020_R = index_match(harvest_2020_R$Hunting.District)
+harvest_index$index_2021_R = index_match(harvest_2021_R$Hunting.District)
+
+harvest_index$index_2004_N = index_match(harvest_2004_N$Hunting.District)
+harvest_index$index_2005_N = index_match(harvest_2005_N$Hunting.District)
+harvest_index$index_2006_N = index_match(harvest_2006_N$Hunting.District)
+harvest_index$index_2007_N = index_match(harvest_2007_N$Hunting.District)
+harvest_index$index_2008_N = index_match(harvest_2008_N$Hunting.District)
+harvest_index$index_2009_N = index_match(harvest_2009_N$Hunting.District)
+harvest_index$index_2010_N = index_match(harvest_2010_N$Hunting.District)
+harvest_index$index_2011_N = index_match(harvest_2011_N$Hunting.District)
+harvest_index$index_2012_N = index_match(harvest_2012_N$Hunting.District)
+harvest_index$index_2013_N = index_match(harvest_2013_N$Hunting.District)
+harvest_index$index_2014_N = index_match(harvest_2014_N$Hunting.District)
+harvest_index$index_2015_N = index_match(harvest_2015_N$Hunting.District)
+harvest_index$index_2016_N = index_match(harvest_2016_N$Hunting.District)
+harvest_index$index_2017_N = index_match(harvest_2017_N$Hunting.District)
+harvest_index$index_2018_N = index_match(harvest_2018_N$Hunting.District)
+harvest_index$index_2019_N = index_match(harvest_2019_N$Hunting.District)
+harvest_index$index_2020_N = index_match(harvest_2020_N$Hunting.District)
+harvest_index$index_2021_N = index_match(harvest_2021_N$Hunting.District)
+
+harvest_index$index_2004_SUM = index_match(harvest_2004_SUM$Hunting.District)
+harvest_index$index_2005_SUM = index_match(harvest_2005_SUM$Hunting.District)
+harvest_index$index_2006_SUM = index_match(harvest_2006_SUM$Hunting.District)
+harvest_index$index_2007_SUM = index_match(harvest_2007_SUM$Hunting.District)
+harvest_index$index_2008_SUM = index_match(harvest_2008_SUM$Hunting.District)
+harvest_index$index_2009_SUM = index_match(harvest_2009_SUM$Hunting.District)
+harvest_index$index_2010_SUM = index_match(harvest_2010_SUM$Hunting.District)
+harvest_index$index_2011_SUM = index_match(harvest_2011_SUM$Hunting.District)
+harvest_index$index_2012_SUM = index_match(harvest_2012_SUM$Hunting.District)
+harvest_index$index_2013_SUM = index_match(harvest_2013_SUM$Hunting.District)
+harvest_index$index_2014_SUM = index_match(harvest_2014_SUM$Hunting.District)
+harvest_index$index_2015_SUM = index_match(harvest_2015_SUM$Hunting.District)
+harvest_index$index_2016_SUM = index_match(harvest_2016_SUM$Hunting.District)
+harvest_index$index_2017_SUM = index_match(harvest_2017_SUM$Hunting.District)
+harvest_index$index_2018_SUM = index_match(harvest_2018_SUM$Hunting.District)
+harvest_index$index_2019_SUM = index_match(harvest_2019_SUM$Hunting.District)
+harvest_index$index_2020_SUM = index_match(harvest_2020_SUM$Hunting.District)
+harvest_index$index_2021_SUM = index_match(harvest_2021_SUM$Hunting.District)
+
+
+
+districts_2 = harvest |> filter(Hunting.District %in% hd) |> filter(Residency == c("R", "N")) |> filter(Days > 0) #|> select(License.Year ,Hunting.District, Residency, Hunters, Total.Harvest, Bulls, X6.or.More.Points)
+yearsum = harvest |> filter(Residency == "SUM") |> filter(Hunting.District == "State")
+yearres = harvest |> filter(Residency == "R") |> filter(Hunting.District == "State")
+yearn = harvest |> filter(Residency == "N") |> filter(Hunting.District == "State")
+
+mean(yearsum$Total.Harvest/yearsum$Hunters)
+mean(yearres$Total.Harvest/yearres$Hunters)
+mean(yearn$Total.Harvest/yearn$Hunters)
+
+mean(yearsum$Bulls/yearsum$Hunters)
+mean(yearres$Bulls/yearres$Hunters)
+mean(yearn$Bulls/yearn$Hunters)
+
+mean(yearsum$X6.or.More.Points/yearsum$Hunters)
+mean(yearres$X6.or.More.Points/yearres$Hunters)
+mean(yearn$X6.or.More.Points/yearn$Hunters)
+
+ggplot(yearn, aes(x = License.Year, y = Hunters)) + geom_line() +  
+  xlab("Year") + 
+  ylab("Number of Hunters") +
+  ggtitle("Montana Non-Resident Hunters")
+
+ggplot(yearn, aes(x = License.Year, y = Total.Harvest/Hunters)) + geom_line() +  
+  xlab("Year") + 
+  ylab("Harvest Rate") +
+  ggtitle("Montana Non-Resident Harvest Rates") +
+  geom_hline(yintercept = mean(yearn$Total.Harvest/yearn$Hunters), color = "red", linetype="dashed")
+
+ggplot(yearres, aes(x = License.Year, y = Hunters)) + geom_line() +  
+  xlab("Year") + 
+  ylab("Number of Hunters") +
+  ggtitle("Montana Resident Hunters")
+
+ggplot(yearres, aes(x = License.Year, y = Total.Harvest/Hunters)) + geom_line() +  
+  xlab("Year") + 
+  ylab("Harvest Rate") +
+  ggtitle("Montana Resident Harvest Rates") +
+  geom_hline(yintercept = mean(yearres$Total.Harvest/yearres$Hunters), color = "red", linetype="dashed")
+
+ggplot(districts_2, aes(x = Days.per.Hunter, color = Residency)) + geom_histogram() +  
+  xlab("Days per Hunter") + 
+  ylab("Count") +
+  ggtitle("Resident vs. Non-Resident Days per Hunter")
+
+##### Creating Non-Residents Hunters Data Frame
+
+harvest_analysis_Hunters = data.frame(hd)
+colnames(harvest_analysis_Hunters) = c("hunting district")
+
+harvest_analysis_Hunters$N_2004 = harvest_2004_N$Hunters[harvest_index$index_2004_N]
+harvest_analysis_Hunters$N_2005 = harvest_2005_N$Hunters[harvest_index$index_2005_N]
+harvest_analysis_Hunters$N_2006 = harvest_2006_N$Hunters[harvest_index$index_2006_N]
+harvest_analysis_Hunters$N_2007 = harvest_2007_N$Hunters[harvest_index$index_2007_N]
+harvest_analysis_Hunters$N_2008 = harvest_2008_N$Hunters[harvest_index$index_2008_N]
+harvest_analysis_Hunters$N_2009 = harvest_2009_N$Hunters[harvest_index$index_2009_N]
+harvest_analysis_Hunters$N_2010 = harvest_2010_N$Hunters[harvest_index$index_2010_N]
+harvest_analysis_Hunters$N_2011 = harvest_2011_N$Hunters[harvest_index$index_2011_N]
+harvest_analysis_Hunters$N_2012 = harvest_2012_N$Hunters[harvest_index$index_2012_N]
+harvest_analysis_Hunters$N_2013 = harvest_2013_N$Hunters[harvest_index$index_2013_N]
+harvest_analysis_Hunters$N_2014 = harvest_2014_N$Hunters[harvest_index$index_2014_N]
+harvest_analysis_Hunters$N_2015 = harvest_2015_N$Hunters[harvest_index$index_2015_N]
+harvest_analysis_Hunters$N_2016 = harvest_2016_N$Hunters[harvest_index$index_2016_N]
+harvest_analysis_Hunters$N_2017 = harvest_2017_N$Hunters[harvest_index$index_2017_N]
+harvest_analysis_Hunters$N_2018 = harvest_2018_N$Hunters[harvest_index$index_2018_N]
+harvest_analysis_Hunters$N_2019 = harvest_2019_N$Hunters[harvest_index$index_2019_N]
+harvest_analysis_Hunters$N_2020 = harvest_2020_N$Hunters[harvest_index$index_2020_N]
+harvest_analysis_Hunters$N_2021 = harvest_2021_N$Hunters[harvest_index$index_2021_N]
+
+##### Creating Total Non-Residents Harvest Data Frame
+
+harvest_analysis_Total_Harvest = data.frame(hd)
+colnames(harvest_analysis_Total_Harvest) = c("hunting district")
+
+harvest_analysis_Total_Harvest$N_2004 = harvest_2004_N$Total.Harvest[harvest_index$index_2004_N]
+harvest_analysis_Total_Harvest$N_2005 = harvest_2005_N$Total.Harvest[harvest_index$index_2005_N]
+harvest_analysis_Total_Harvest$N_2006 = harvest_2006_N$Total.Harvest[harvest_index$index_2006_N]
+harvest_analysis_Total_Harvest$N_2007 = harvest_2007_N$Total.Harvest[harvest_index$index_2007_N]
+harvest_analysis_Total_Harvest$N_2008 = harvest_2008_N$Total.Harvest[harvest_index$index_2008_N]
+harvest_analysis_Total_Harvest$N_2009 = harvest_2009_N$Total.Harvest[harvest_index$index_2009_N]
+harvest_analysis_Total_Harvest$N_2010 = harvest_2010_N$Total.Harvest[harvest_index$index_2010_N]
+harvest_analysis_Total_Harvest$N_2011 = harvest_2011_N$Total.Harvest[harvest_index$index_2011_N]
+harvest_analysis_Total_Harvest$N_2012 = harvest_2012_N$Total.Harvest[harvest_index$index_2012_N]
+harvest_analysis_Total_Harvest$N_2013 = harvest_2013_N$Total.Harvest[harvest_index$index_2013_N]
+harvest_analysis_Total_Harvest$N_2014 = harvest_2014_N$Total.Harvest[harvest_index$index_2014_N]
+harvest_analysis_Total_Harvest$N_2015 = harvest_2015_N$Total.Harvest[harvest_index$index_2015_N]
+harvest_analysis_Total_Harvest$N_2016 = harvest_2016_N$Total.Harvest[harvest_index$index_2016_N]
+harvest_analysis_Total_Harvest$N_2017 = harvest_2017_N$Total.Harvest[harvest_index$index_2017_N]
+harvest_analysis_Total_Harvest$N_2018 = harvest_2018_N$Total.Harvest[harvest_index$index_2018_N]
+harvest_analysis_Total_Harvest$N_2019 = harvest_2019_N$Total.Harvest[harvest_index$index_2019_N]
+harvest_analysis_Total_Harvest$N_2020 = harvest_2020_N$Total.Harvest[harvest_index$index_2020_N]
+harvest_analysis_Total_Harvest$N_2021 = harvest_2021_N$Total.Harvest[harvest_index$index_2021_N]
+
+##### Creating Non-Residents Bulls Data Frame
+
+harvest_analysis_Bulls = data.frame(hd)
+colnames(harvest_analysis_Bulls) = c("hunting district")
+
+harvest_analysis_Bulls$N_2004 = harvest_2004_N$Bulls[harvest_index$index_2004_N]
+harvest_analysis_Bulls$N_2005 = harvest_2005_N$Bulls[harvest_index$index_2005_N]
+harvest_analysis_Bulls$N_2006 = harvest_2006_N$Bulls[harvest_index$index_2006_N]
+harvest_analysis_Bulls$N_2007 = harvest_2007_N$Bulls[harvest_index$index_2007_N]
+harvest_analysis_Bulls$N_2008 = harvest_2008_N$Bulls[harvest_index$index_2008_N]
+harvest_analysis_Bulls$N_2009 = harvest_2009_N$Bulls[harvest_index$index_2009_N]
+harvest_analysis_Bulls$N_2010 = harvest_2010_N$Bulls[harvest_index$index_2010_N]
+harvest_analysis_Bulls$N_2011 = harvest_2011_N$Bulls[harvest_index$index_2011_N]
+harvest_analysis_Bulls$N_2012 = harvest_2012_N$Bulls[harvest_index$index_2012_N]
+harvest_analysis_Bulls$N_2013 = harvest_2013_N$Bulls[harvest_index$index_2013_N]
+harvest_analysis_Bulls$N_2014 = harvest_2014_N$Bulls[harvest_index$index_2014_N]
+harvest_analysis_Bulls$N_2015 = harvest_2015_N$Bulls[harvest_index$index_2015_N]
+harvest_analysis_Bulls$N_2016 = harvest_2016_N$Bulls[harvest_index$index_2016_N]
+harvest_analysis_Bulls$N_2017 = harvest_2017_N$Bulls[harvest_index$index_2017_N]
+harvest_analysis_Bulls$N_2018 = harvest_2018_N$Bulls[harvest_index$index_2018_N]
+harvest_analysis_Bulls$N_2019 = harvest_2019_N$Bulls[harvest_index$index_2019_N]
+harvest_analysis_Bulls$N_2020 = harvest_2020_N$Bulls[harvest_index$index_2020_N]
+harvest_analysis_Bulls$N_2021 = harvest_2021_N$Bulls[harvest_index$index_2021_N]
+
+##### Creating Non-Residents 6 or more points Data Frame
+
+harvest_analysis_X6orMorePoints = data.frame(hd)
+colnames(harvest_analysis_X6orMorePoints) = c("hunting district")
+
+harvest_analysis_X6orMorePoints$N_2004 = harvest_2004_N$X6.or.More.Points[harvest_index$index_2004_N]
+harvest_analysis_X6orMorePoints$N_2005 = harvest_2005_N$X6.or.More.Points[harvest_index$index_2005_N]
+harvest_analysis_X6orMorePoints$N_2006 = harvest_2006_N$X6.or.More.Points[harvest_index$index_2006_N]
+harvest_analysis_X6orMorePoints$N_2007 = harvest_2007_N$X6.or.More.Points[harvest_index$index_2007_N]
+harvest_analysis_X6orMorePoints$N_2008 = harvest_2008_N$X6.or.More.Points[harvest_index$index_2008_N]
+harvest_analysis_X6orMorePoints$N_2009 = harvest_2009_N$X6.or.More.Points[harvest_index$index_2009_N]
+harvest_analysis_X6orMorePoints$N_2010 = harvest_2010_N$X6.or.More.Points[harvest_index$index_2010_N]
+harvest_analysis_X6orMorePoints$N_2011 = harvest_2011_N$X6.or.More.Points[harvest_index$index_2011_N]
+harvest_analysis_X6orMorePoints$N_2012 = harvest_2012_N$X6.or.More.Points[harvest_index$index_2012_N]
+harvest_analysis_X6orMorePoints$N_2013 = harvest_2013_N$X6.or.More.Points[harvest_index$index_2013_N]
+harvest_analysis_X6orMorePoints$N_2014 = harvest_2014_N$X6.or.More.Points[harvest_index$index_2014_N]
+harvest_analysis_X6orMorePoints$N_2015 = harvest_2015_N$X6.or.More.Points[harvest_index$index_2015_N]
+harvest_analysis_X6orMorePoints$N_2016 = harvest_2016_N$X6.or.More.Points[harvest_index$index_2016_N]
+harvest_analysis_X6orMorePoints$N_2017 = harvest_2017_N$X6.or.More.Points[harvest_index$index_2017_N]
+harvest_analysis_X6orMorePoints$N_2018 = harvest_2018_N$X6.or.More.Points[harvest_index$index_2018_N]
+harvest_analysis_X6orMorePoints$N_2019 = harvest_2019_N$X6.or.More.Points[harvest_index$index_2019_N]
+harvest_analysis_X6orMorePoints$N_2020 = harvest_2020_N$X6.or.More.Points[harvest_index$index_2020_N]
+harvest_analysis_X6orMorePoints$N_2021 = harvest_2021_N$X6.or.More.Points[harvest_index$index_2021_N]
+
+##### Creating Residents Hunters Data Frame
+
+harvest_analysis_Hunters$R_2004 = harvest_2004_R$Hunters[harvest_index$index_2004_R]
+harvest_analysis_Hunters$R_2005 = harvest_2005_R$Hunters[harvest_index$index_2005_R]
+harvest_analysis_Hunters$R_2006 = harvest_2006_R$Hunters[harvest_index$index_2006_R]
+harvest_analysis_Hunters$R_2007 = harvest_2007_R$Hunters[harvest_index$index_2007_R]
+harvest_analysis_Hunters$R_2008 = harvest_2008_R$Hunters[harvest_index$index_2008_R]
+harvest_analysis_Hunters$R_2009 = harvest_2009_R$Hunters[harvest_index$index_2009_R]
+harvest_analysis_Hunters$R_2010 = harvest_2010_R$Hunters[harvest_index$index_2010_R]
+harvest_analysis_Hunters$R_2011 = harvest_2011_R$Hunters[harvest_index$index_2011_R]
+harvest_analysis_Hunters$R_2012 = harvest_2012_R$Hunters[harvest_index$index_2012_R]
+harvest_analysis_Hunters$R_2013 = harvest_2013_R$Hunters[harvest_index$index_2013_R]
+harvest_analysis_Hunters$R_2014 = harvest_2014_R$Hunters[harvest_index$index_2014_R]
+harvest_analysis_Hunters$R_2015 = harvest_2015_R$Hunters[harvest_index$index_2015_R]
+harvest_analysis_Hunters$R_2016 = harvest_2016_R$Hunters[harvest_index$index_2016_R]
+harvest_analysis_Hunters$R_2017 = harvest_2017_R$Hunters[harvest_index$index_2017_R]
+harvest_analysis_Hunters$R_2018 = harvest_2018_R$Hunters[harvest_index$index_2018_R]
+harvest_analysis_Hunters$R_2019 = harvest_2019_R$Hunters[harvest_index$index_2019_R]
+harvest_analysis_Hunters$R_2020 = harvest_2020_R$Hunters[harvest_index$index_2020_R]
+harvest_analysis_Hunters$R_2021 = harvest_2021_R$Hunters[harvest_index$index_2021_R]
+
+##### Creating Total Residents Harvest Data Frame
+
+harvest_analysis_Total_Harvest$R_2004 = harvest_2004_R$Total.Harvest[harvest_index$index_2004_R]
+harvest_analysis_Total_Harvest$R_2005 = harvest_2005_R$Total.Harvest[harvest_index$index_2005_R]
+harvest_analysis_Total_Harvest$R_2006 = harvest_2006_R$Total.Harvest[harvest_index$index_2006_R]
+harvest_analysis_Total_Harvest$R_2007 = harvest_2007_R$Total.Harvest[harvest_index$index_2007_R]
+harvest_analysis_Total_Harvest$R_2008 = harvest_2008_R$Total.Harvest[harvest_index$index_2008_R]
+harvest_analysis_Total_Harvest$R_2009 = harvest_2009_R$Total.Harvest[harvest_index$index_2009_R]
+harvest_analysis_Total_Harvest$R_2010 = harvest_2010_R$Total.Harvest[harvest_index$index_2010_R]
+harvest_analysis_Total_Harvest$R_2011 = harvest_2011_R$Total.Harvest[harvest_index$index_2011_R]
+harvest_analysis_Total_Harvest$R_2012 = harvest_2012_R$Total.Harvest[harvest_index$index_2012_R]
+harvest_analysis_Total_Harvest$R_2013 = harvest_2013_R$Total.Harvest[harvest_index$index_2013_R]
+harvest_analysis_Total_Harvest$R_2014 = harvest_2014_R$Total.Harvest[harvest_index$index_2014_R]
+harvest_analysis_Total_Harvest$R_2015 = harvest_2015_R$Total.Harvest[harvest_index$index_2015_R]
+harvest_analysis_Total_Harvest$R_2016 = harvest_2016_R$Total.Harvest[harvest_index$index_2016_R]
+harvest_analysis_Total_Harvest$R_2017 = harvest_2017_R$Total.Harvest[harvest_index$index_2017_R]
+harvest_analysis_Total_Harvest$R_2018 = harvest_2018_R$Total.Harvest[harvest_index$index_2018_R]
+harvest_analysis_Total_Harvest$R_2019 = harvest_2019_R$Total.Harvest[harvest_index$index_2019_R]
+harvest_analysis_Total_Harvest$R_2020 = harvest_2020_R$Total.Harvest[harvest_index$index_2020_R]
+harvest_analysis_Total_Harvest$R_2021 = harvest_2021_R$Total.Harvest[harvest_index$index_2021_R]
+
+##### Creating Residents Bulls Data Frame
+
+harvest_analysis_Bulls$R_2004 = harvest_2004_R$Bulls[harvest_index$index_2004_R]
+harvest_analysis_Bulls$R_2005 = harvest_2005_R$Bulls[harvest_index$index_2005_R]
+harvest_analysis_Bulls$R_2006 = harvest_2006_R$Bulls[harvest_index$index_2006_R]
+harvest_analysis_Bulls$R_2007 = harvest_2007_R$Bulls[harvest_index$index_2007_R]
+harvest_analysis_Bulls$R_2008 = harvest_2008_R$Bulls[harvest_index$index_2008_R]
+harvest_analysis_Bulls$R_2009 = harvest_2009_R$Bulls[harvest_index$index_2009_R]
+harvest_analysis_Bulls$R_2010 = harvest_2010_R$Bulls[harvest_index$index_2010_R]
+harvest_analysis_Bulls$R_2011 = harvest_2011_R$Bulls[harvest_index$index_2011_R]
+harvest_analysis_Bulls$R_2012 = harvest_2012_R$Bulls[harvest_index$index_2012_R]
+harvest_analysis_Bulls$R_2013 = harvest_2013_R$Bulls[harvest_index$index_2013_R]
+harvest_analysis_Bulls$R_2014 = harvest_2014_R$Bulls[harvest_index$index_2014_R]
+harvest_analysis_Bulls$R_2015 = harvest_2015_R$Bulls[harvest_index$index_2015_R]
+harvest_analysis_Bulls$R_2016 = harvest_2016_R$Bulls[harvest_index$index_2016_R]
+harvest_analysis_Bulls$R_2017 = harvest_2017_R$Bulls[harvest_index$index_2017_R]
+harvest_analysis_Bulls$R_2018 = harvest_2018_R$Bulls[harvest_index$index_2018_R]
+harvest_analysis_Bulls$R_2019 = harvest_2019_R$Bulls[harvest_index$index_2019_R]
+harvest_analysis_Bulls$R_2020 = harvest_2020_R$Bulls[harvest_index$index_2020_R]
+harvest_analysis_Bulls$R_2021 = harvest_2021_R$Bulls[harvest_index$index_2021_R]
+
+##### Creating Residents 6 or more points Data Frame
+
+harvest_analysis_X6orMorePoints$R_2004 = harvest_2004_R$X6.or.More.Points[harvest_index$index_2004_R]
+harvest_analysis_X6orMorePoints$R_2005 = harvest_2005_R$X6.or.More.Points[harvest_index$index_2005_R]
+harvest_analysis_X6orMorePoints$R_2006 = harvest_2006_R$X6.or.More.Points[harvest_index$index_2006_R]
+harvest_analysis_X6orMorePoints$R_2007 = harvest_2007_R$X6.or.More.Points[harvest_index$index_2007_R]
+harvest_analysis_X6orMorePoints$R_2008 = harvest_2008_R$X6.or.More.Points[harvest_index$index_2008_R]
+harvest_analysis_X6orMorePoints$R_2009 = harvest_2009_R$X6.or.More.Points[harvest_index$index_2009_R]
+harvest_analysis_X6orMorePoints$R_2010 = harvest_2010_R$X6.or.More.Points[harvest_index$index_2010_R]
+harvest_analysis_X6orMorePoints$R_2011 = harvest_2011_R$X6.or.More.Points[harvest_index$index_2011_R]
+harvest_analysis_X6orMorePoints$R_2012 = harvest_2012_R$X6.or.More.Points[harvest_index$index_2012_R]
+harvest_analysis_X6orMorePoints$R_2013 = harvest_2013_R$X6.or.More.Points[harvest_index$index_2013_R]
+harvest_analysis_X6orMorePoints$R_2014 = harvest_2014_R$X6.or.More.Points[harvest_index$index_2014_R]
+harvest_analysis_X6orMorePoints$R_2015 = harvest_2015_R$X6.or.More.Points[harvest_index$index_2015_R]
+harvest_analysis_X6orMorePoints$R_2016 = harvest_2016_R$X6.or.More.Points[harvest_index$index_2016_R]
+harvest_analysis_X6orMorePoints$R_2017 = harvest_2017_R$X6.or.More.Points[harvest_index$index_2017_R]
+harvest_analysis_X6orMorePoints$R_2018 = harvest_2018_R$X6.or.More.Points[harvest_index$index_2018_R]
+harvest_analysis_X6orMorePoints$R_2019 = harvest_2019_R$X6.or.More.Points[harvest_index$index_2019_R]
+harvest_analysis_X6orMorePoints$R_2020 = harvest_2020_R$X6.or.More.Points[harvest_index$index_2020_R]
+harvest_analysis_X6orMorePoints$R_2021 = harvest_2021_R$X6.or.More.Points[harvest_index$index_2021_R]
+
+##### Generating Graphics for Analysis
+
+graphics_analysis = Deer_and_Elk_Hunting_Districts
+
+# Exploratory Analysis
+
+##### Non-Resident Hunters Map
+
+hunters_summary = data.frame(hd)
+colnames(hunters_summary) = c("hunting districts")
+hunters_summary$hunters =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  hunters_summary$hunters[j] = sum(na.omit(harvest_analysis_Hunters[j,2:19]))
+}
+graphics_analysis$Hunters_Summary = hunters_summary$hunters[match(graphics_analysis$DISTRICT,hunters_summary$`hunting district`)]
+
+plot(graphics_analysis["Hunters_Summary"])
+
+(best_hunters = head(hunters_summary %>% select(`hunting districts`, hunters) %>% arrange(desc(hunters))))
+
+##### Non-Resident Harvest Map
+
+harvest_summary = data.frame(hd)
+colnames(harvest_summary) = c("hunting districts")
+harvest_summary$harvests =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  harvest_summary$harvests[j] = sum(na.omit(harvest_analysis_Total_Harvest[j,2:19]))
+}
+graphics_analysis$Harvests_Summary = harvest_summary$harvests[match(graphics_analysis$DISTRICT,harvest_summary$`hunting district`)]
+
+plot(graphics_analysis["Harvests_Summary"])
+
+(best_harvest = head(harvest_summary %>% select(`hunting districts`, harvests) %>% arrange(desc(harvests))))
+
+##### Non-Residents Bull Harvest Map
+
+bulls_summary = data.frame(hd)
+colnames(bulls_summary) = c("hunting districts")
+bulls_summary$bulls =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  bulls_summary$bulls[j] = sum(na.omit(harvest_analysis_Bulls[j,2:19]))
+}
+graphics_analysis$Bulls_Summary = bulls_summary$bulls[match(graphics_analysis$DISTRICT,bulls_summary$`hunting district`)]
+
+plot(graphics_analysis["Bulls_Summary"])
+
+(best_bulls = head(bulls_summary %>% select(`hunting districts`, bulls) %>% arrange(desc(bulls))))
+
+
+##### Non-Resident Bulls w/ 6 or More Points Map
+
+x6ormore_summary = data.frame(hd)
+colnames(x6ormore_summary) = c("hunting districts")
+x6ormore_summary$x6ormore =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  x6ormore_summary$x6ormore[j] = sum(na.omit(harvest_analysis_X6orMorePoints[j,2:19]))
+}
+graphics_analysis$X6ormore_Summary = x6ormore_summary$x6ormore[match(graphics_analysis$DISTRICT,x6ormore_summary$`hunting district`)]
+
+plot(graphics_analysis["X6ormore_Summary"])
+
+(best_x6ormore = head(x6ormore_summary %>% select(`hunting districts`, x6ormore) %>% arrange(desc(x6ormore))))
+
+
+##### Non-Residence Harvest Rates
+
+harvest_rate_summary = data.frame(hd)
+colnames(harvest_rate_summary) = c("hunting districts")
+harvest_rate_summary$harvest =  harvest_summary$harvest
+harvest_rate_summary$bull_harvest =  bulls_summary$bulls
+harvest_rate_summary$x6ormore_harvest =  x6ormore_summary$x6ormore
+harvest_rate_summary$hunters = hunters_summary$hunters
+harvest_rate_summary$harvest_rate =  harvest_summary$harvest/hunters_summary$hunters
+harvest_rate_summary$bull_harvest_rate =  bulls_summary$bulls/hunters_summary$hunters
+harvest_rate_summary$x6ormore_harvest_rate =  x6ormore_summary$x6ormore/hunters_summary$hunters
+
+(best_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, harvest_rate) %>% arrange(desc(harvest_rate))))
+(best_bull_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, bull_harvest_rate) %>% arrange(desc(bull_harvest_rate))))
+(best_x6ormore_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, x6ormore_harvest_rate) %>% arrange(desc(x6ormore_harvest_rate))))
+
+
+##### Resident Hunters Map
+
+hunters_summary = data.frame(hd)
+colnames(hunters_summary) = c("hunting districts")
+hunters_summary$hunters =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  hunters_summary$hunters[j] = sum(na.omit(harvest_analysis_Hunters[j,20:37]))
+}
+graphics_analysis$Hunters_Summary = hunters_summary$hunters[match(graphics_analysis$DISTRICT,hunters_summary$`hunting district`)]
+
+plot(graphics_analysis["Hunters_Summary"])
+
+(best_hunters = head(hunters_summary %>% select(`hunting districts`, hunters) %>% arrange(desc(hunters))))
+
+##### Resident Harvest Map
+
+harvest_summary = data.frame(hd)
+colnames(harvest_summary) = c("hunting districts")
+harvest_summary$harvests =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  harvest_summary$harvests[j] = sum(na.omit(harvest_analysis_Total_Harvest[j,20:37]))
+}
+graphics_analysis$Harvests_Summary = harvest_summary$harvests[match(graphics_analysis$DISTRICT,harvest_summary$`hunting district`)]
+
+plot(graphics_analysis["Harvests_Summary"])
+
+(best_harvest = head(harvest_summary %>% select(`hunting districts`, harvests) %>% arrange(desc(harvests))))
+
+##### Resident Bull Harvest Map
+
+bulls_summary = data.frame(hd)
+colnames(bulls_summary) = c("hunting districts")
+bulls_summary$bulls =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  bulls_summary$bulls[j] = sum(na.omit(harvest_analysis_Bulls[j,20:37]))
+}
+graphics_analysis$Bulls_Summary = bulls_summary$bulls[match(graphics_analysis$DISTRICT,bulls_summary$`hunting district`)]
+
+plot(graphics_analysis["Bulls_Summary"])
+
+(best_bulls = head(bulls_summary %>% select(`hunting districts`, bulls) %>% arrange(desc(bulls))))
+
+##### Resident Bull w/ 6 or More Points Map
+
+x6ormore_summary = data.frame(hd)
+colnames(x6ormore_summary) = c("hunting districts")
+x6ormore_summary$x6ormore =  rep(0, length(hd))
+for(j in 1:length(hd)){
+  x6ormore_summary$x6ormore[j] = sum(na.omit(harvest_analysis_X6orMorePoints[j,20:37]))
+}
+graphics_analysis$X6ormore_Summary = x6ormore_summary$x6ormore[match(graphics_analysis$DISTRICT,x6ormore_summary$`hunting district`)]
+
+plot(graphics_analysis["X6ormore_Summary"])
+
+(best_x6ormore = head(x6ormore_summary %>% select(`hunting districts`, x6ormore) %>% arrange(desc(x6ormore))))
+
+##### Resident Harvest Rates
+
+harvest_rate_summary = data.frame(hd)
+colnames(harvest_rate_summary) = c("hunting districts")
+harvest_rate_summary$harvest =  harvest_summary$harvest
+harvest_rate_summary$bull_harvest =  bulls_summary$bulls
+harvest_rate_summary$x6ormore_harvest =  x6ormore_summary$x6ormore
+harvest_rate_summary$hunters = hunters_summary$hunters
+harvest_rate_summary$harvest_rate =  harvest_summary$harvest/hunters_summary$hunters
+harvest_rate_summary$bull_harvest_rate =  bulls_summary$bulls/hunters_summary$hunters
+harvest_rate_summary$x6ormore_harvest_rate =  x6ormore_summary$x6ormore/hunters_summary$hunters
+
+
+(best_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, harvest_rate) %>% arrange(desc(harvest_rate))))
+(best_bull_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, bull_harvest_rate) %>% arrange(desc(bull_harvest_rate))))
+(best_x6ormore_harvest_rate = head(harvest_rate_summary %>% select(`hunting districts`, x6ormore_harvest_rate) %>% arrange(desc(x6ormore_harvest_rate))))
